@@ -1,0 +1,89 @@
+{
+	"geode": "4.10.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "ramble21.stopdyingthere",
+	"name": "StopDyingThere",
+	"version": "v1.0.0",
+	"developer": "Ramble21",
+	"description": "Plays lines from Cold's iconic video whenever you die in GD",
+	"dependencies": {
+		"geode.node-ids": ">=v1.20.0"
+	},
+	"settings": {
+		"enable": {
+			"type": "bool",
+			"default": true,
+			"name": "Enable",
+			"description": "Enables the mod"
+		},
+		"disableinpractice": {
+			"type": "bool",
+			"default": true,
+			"name": "Disable in practice mode",
+			"description": "Disables the mod while playing in practice mode or from a StartPos"
+		},
+		"bestonly": {
+			"type": "bool",
+			"default": false,
+			"name": "Play on Best Only",
+			"description": "Only play sound effects when dying at/past your normal mode best"
+		},
+		"levelcomplete": {
+			"type": "bool",
+			"default": true,
+			"name": "Play on level completion",
+			"description": "Plays Cold's celebration when you beat a level"
+		},
+		"volume": {
+			"type": "int",
+			"default": 25,
+			"min": 0,
+			"max": 100,
+			"name": "Volume",
+			"description": "Set the mod's volume (0-100%)- sfx are VERY LOUD so low volume recommended"
+		}
+	},
+	"resources": {
+		"files": [
+			"resources/1.ogg",
+			"resources/2.ogg",
+			"resources/3.ogg",
+			"resources/4.ogg",
+			"resources/5.ogg",
+			"resources/6.ogg",
+			"resources/7.ogg",
+			"resources/8.ogg",
+			"resources/9.ogg",
+			"resources/10.ogg",
+			"resources/11.ogg",
+			"resources/12.ogg",
+			"resources/13.ogg",
+			"resources/14.ogg",
+			"resources/15.ogg",
+			"resources/16.ogg",
+			"resources/17.ogg",
+			"resources/18.ogg",
+			"resources/19.ogg",
+			"resources/20.ogg",
+			"resources/21.ogg",
+			"resources/22.ogg",
+			"resources/23.ogg",
+			"resources/24.ogg",
+			"resources/25.ogg",
+			"resources/26.ogg",
+			"resources/27.ogg",
+			"resources/28.ogg",
+			"resources/29.ogg",
+			"resources/30.ogg"
+		]
+	},
+	"tags": [
+		"offline",
+		"joke"
+	]
+}
