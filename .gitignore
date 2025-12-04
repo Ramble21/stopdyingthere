@@ -29,6 +29,7 @@
 # Executables
 *.exe
 *.out
+out/
 *.app
 
 # Macos be like

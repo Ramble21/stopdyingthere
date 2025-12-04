@@ -11,6 +11,10 @@
 	"version": "v1.0.0",
 	"developer": "Ramble21",
 	"description": "Plays lines from Cold's iconic video whenever you die in GD",
+	"repository": "https://github.com/Ramble21/stopdyingthere",
+	"links": {
+		"source": "https://github.com/Ramble21/stopdyingthere"
+	},
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	},
