@@ -16,8 +16,15 @@ void playSfx(int sfxId, float volume) {
     }
     std::string filename = std::to_string(sfxId) + ".ogg";
     auto path = Mod::get()->getResourcesDir() / filename;
-    if (!std::filesystem::exists(path)) {
-        log::error("File not found: {}", path.string());
+
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec)) {
+        if (ec) {
+            log::error("Error checking file: {} - {}", string::pathToString(path), ec.message());
+        }
+        else {
+            log::error("File not found: {}", string::pathToString(path));
+        }
         return;
     }
 
@@ -25,7 +32,7 @@ void playSfx(int sfxId, float volume) {
     FMOD::Channel* channel;
     auto engine = FMODAudioEngine::sharedEngine();
 
-    if (engine->m_system->createSound(path.string().c_str(), FMOD_DEFAULT, nullptr, &sound) == FMOD_OK) {
+    if (engine->m_system->createSound(string::pathToString(path).c_str(), FMOD_DEFAULT, nullptr, &sound) == FMOD_OK) {
         if (engine->m_system->playSound(sound, nullptr, false, &channel) == FMOD_OK) {
             channel->setVolume(volume);
         }
@@ -44,8 +51,19 @@ class $modify(MyLevelCompleteHook, PlayLayer) {
         PlayLayer::levelComplete();
 
         bool enabled = Mod::get()->getSettingValue<bool>("enable") && Mod::get()->getSettingValue<bool>("levelcomplete");
+        bool disabledInPractice = Mod::get()->getSettingValue<bool>("disableinpractice");
+
         if (!enabled) {
             return;
+        }
+
+        auto playLayer = PlayLayer::get();
+        if (playLayer && disabledInPractice) {
+            bool isPracticeMode = playLayer->m_isPracticeMode;
+            bool isStartPos = playLayer->m_isTestMode;
+            if (isPracticeMode || isStartPos) {
+                return;
+            }
         }
 
         m_fields->scheduledVolume = Mod::get()->getSettingValue<int64_t>("volume") / 100.0f;
@@ -95,25 +113,17 @@ class $modify(MyDeathHook, PlayerObject) {
         void playMySound(float dt) {
             playSfx(m_fields->scheduledSoundId, m_fields->scheduledVolume);
         }
-        
-        bool diedToSpike() {
-            if (!this->m_collidedObject) {
-                return false;
-            }
-
-            GameObject* killer = this->m_collidedObject;
-        }
 
         int chooseDeathSound(int deathPercent, int currentBest, bool waveDeath) {
             bool playOnBestOnly = Mod::get()->getSettingValue<bool>("bestonly");
             int rageSize =
                 // small rage: 0% - 25% (regardless of current best)
-                // medium rage: minimum 25% - 5% before current best
+                // medium rage: minimum 25%, maximum is the smaller of either 85% or 5% before current best
                 // current best rage: 5% up to and including current best (or current best only if considerSmallMedRage is false)
                 // large rage: past the best
                 (deathPercent < 25) ? 1 :
-                (deathPercent + 5 <= currentBest) ? 2 :
-                (deathPercent <= currentBest) ? 3 :
+                (deathPercent + 5 <= currentBest && deathPercent < 85) ? 2 :
+                (deathPercent <= currentBest && deathPercent < 85) ? 3 :
                 4;
             if (playOnBestOnly && deathPercent < currentBest) {
                 return -1;
@@ -151,10 +161,6 @@ class $modify(MyDeathHook, PlayerObject) {
             }
 
             std::uniform_int_distribution<> dis(0, pool.size() - 1);
-            int randomId = pool[dis(rng)];
-
-            log::info("Death tracked; deathPercent={}, currentBest={}, rageSize={}, sfxId={}", deathPercent, currentBest, rageSize, randomId);
-            return randomId;
-
+            return pool[dis(rng)];
         }
 };
