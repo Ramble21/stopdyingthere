@@ -8,7 +8,7 @@
 	},
 	"id": "ramble21.stopdyingthere",
 	"name": "StopDyingThere",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"developer": "Ramble21",
 	"description": "Plays lines from Cold's iconic video whenever you die in GD",
 	"repository": "https://github.com/Ramble21/stopdyingthere",
