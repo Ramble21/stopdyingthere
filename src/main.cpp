@@ -8,13 +8,27 @@
 std::random_device rd;
 std::mt19937 rng(rd());
 
+static const int profaneSfx[] = { 4, 9, 10, 11, 24, 27 };
+
 using namespace geode::prelude;
 
-void playSfx(int sfxId, float volume) {
+void playSfx(int sfxId, float volume, bool censored) {
     if (sfxId == -1) {
         return;
     }
     std::string filename = std::to_string(sfxId) + ".ogg";
+    if (censored) {
+        bool contains = false;
+        for (int i = 0; i < std::size(profaneSfx); i++) {
+            if (profaneSfx[i] == sfxId) {
+                contains = true;
+                break;
+            }
+        }
+        if (contains) {
+            filename = std::to_string(sfxId) + "_c.ogg";
+        }
+    }
     auto path = Mod::get()->getResourcesDir() / filename;
 
     std::error_code ec;
@@ -71,7 +85,7 @@ class $modify(MyLevelCompleteHook, PlayLayer) {
         this->scheduleOnce(schedule_selector(MyLevelCompleteHook::playMySound), 0.f);
     }
     void playMySound(float dt) {
-        playSfx(m_fields->scheduledSoundId, m_fields->scheduledVolume);
+        playSfx(m_fields->scheduledSoundId, m_fields->scheduledVolume, false);
     }
 };
 
@@ -79,6 +93,7 @@ class $modify(MyDeathHook, PlayerObject) {
     struct Fields {
         int scheduledSoundId;
         float scheduledVolume;
+        bool scheduledIsCensored;
     };
     
     public:
@@ -87,16 +102,22 @@ class $modify(MyDeathHook, PlayerObject) {
 
             bool enabled = Mod::get()->getSettingValue<bool>("enable");
             bool disabledInPractice = Mod::get()->getSettingValue<bool>("disableinpractice");
+            bool disabledInPlat = Mod::get()->getSettingValue<bool>("disableinplat");
 
             if (!enabled) {
                 return;
             }
 
             auto playLayer = PlayLayer::get();
-            if (playLayer && disabledInPractice) {
-                bool isPracticeMode = playLayer->m_isPracticeMode;
-                bool isStartPos = playLayer->m_isTestMode;
-                if (isPracticeMode || isStartPos) {
+            if (playLayer) {
+                if (disabledInPractice) {
+                    bool isPracticeMode = playLayer->m_isPracticeMode;
+                    bool isStartPos = playLayer->m_isTestMode;
+                    if (isPracticeMode || isStartPos) {
+                        return;
+                    }
+                }
+                if (disabledInPlat && playLayer->m_level->isPlatformer()) {
                     return;
                 }
             }
@@ -107,25 +128,38 @@ class $modify(MyDeathHook, PlayerObject) {
                         
             m_fields->scheduledVolume = Mod::get()->getSettingValue<int64_t>("volume") / 100.0f;
             m_fields->scheduledSoundId = chooseDeathSound(deathPercent, currentBest, waveDeath);
+            m_fields->scheduledIsCensored = Mod::get()->getSettingValue<std::string>("censored") == "Censored";
+
             this->scheduleOnce(schedule_selector(MyDeathHook::playMySound), 0.f);
         }
         
         void playMySound(float dt) {
-            playSfx(m_fields->scheduledSoundId, m_fields->scheduledVolume);
+            playSfx(m_fields->scheduledSoundId, m_fields->scheduledVolume, m_fields->scheduledIsCensored);
         }
 
         int chooseDeathSound(int deathPercent, int currentBest, bool waveDeath) {
-            bool playOnBestOnly = Mod::get()->getSettingValue<bool>("bestonly");
+
+            auto censored = Mod::get()->getSettingValue<std::string>("censored");
+            auto customization = Mod::get()->getSettingValue<std::string>("customize");
+            auto threshold = Mod::get()->getSettingValue<int64_t>("threshold");
+
             int rageSize =
                 // small rage: 0% - 25% (regardless of current best)
-                // medium rage: minimum 25%, maximum is the smaller of either 85% or 5% before current best
-                // current best rage: 5% up to and including current best (or current best only if considerSmallMedRage is false)
+                // medium rage: minimum 25%, maximum is the smaller of either threshold or 5% before current best
+                // current best rage: 3% up to and including current best 
                 // large rage: past the best
                 (deathPercent < 25) ? 1 :
-                (deathPercent + 5 <= currentBest && deathPercent < 85) ? 2 :
-                (deathPercent <= currentBest && deathPercent < 85) ? 3 :
+                (deathPercent + 2 <= currentBest && deathPercent < threshold) ? 2 :
+                (deathPercent <= currentBest && deathPercent < threshold) ? 3 :
                 4;
-            if (playOnBestOnly && deathPercent < currentBest) {
+
+            if (customization == "New bests" && deathPercent <= currentBest) {
+                return -1;
+            }
+            if (customization == "Far atts & new bests" && deathPercent <= currentBest && deathPercent <= threshold) {
+                return -1;
+            }
+            if (customization == "Far attempts" && deathPercent <= threshold) {
                 return -1;
             }
            
@@ -142,6 +176,15 @@ class $modify(MyDeathHook, PlayerObject) {
                 using T = std::remove_reference_t<decltype(arr)>;
                 pool.insert(pool.end(), std::begin(arr), std::end(arr));
             };
+            auto removeAll = [&](auto& arr) {
+                using T = std::remove_reference_t<decltype(arr)>;
+                for (auto& val : arr) {
+                    pool.erase(
+                        std::remove(pool.begin(), pool.end(), val),
+                        pool.end()
+                    );
+                }
+            };
            
             switch (rageSize) {
                 case 1: add(smallRageSfx); break;
@@ -152,12 +195,15 @@ class $modify(MyDeathHook, PlayerObject) {
 
             if (rageSize == 4) {
                 // was gonna make this only activate when the player actually dies to a spike
-                // but cant figure out how to do that (this is my first geode mod lol)
+                // but cant figure out how to do that (this is my first geode mod lol
                 // feel free to make a pr if you are more experienced than me
                 add(spikeDeathRageSfx);
             }
             if (waveDeath && rageSize >= 2) {
                 add(waveDeathRageSfx);
+            }
+            if (censored == "Disabled") {
+                removeAll(profaneSfx);
             }
 
             std::uniform_int_distribution<> dis(0, pool.size() - 1);

@@ -8,7 +8,7 @@
 	},
 	"id": "ramble21.stopdyingthere",
 	"name": "StopDyingThere",
-	"version": "v1.0.1",
+	"version": "v1.1.0",
 	"developer": "Ramble21",
 	"description": "Plays lines from Cold's iconic video whenever you die in GD",
 	"repository": "https://github.com/Ramble21/stopdyingthere",
@@ -23,33 +23,55 @@
 			"type": "bool",
 			"default": true,
 			"name": "Enable",
-			"description": "Enables the mod"
+			"description": "Enables the mod."
 		},
 		"disableinpractice": {
 			"type": "bool",
 			"default": true,
 			"name": "Disable in practice mode",
-			"description": "Disables the mod while playing in practice mode or from a StartPos"
+			"description": "Disables the mod while playing in practice mode or from a StartPos."
 		},
-		"bestonly": {
+		"disableinplat": {
 			"type": "bool",
-			"default": false,
-			"name": "Play on Best Only",
-			"description": "Only play sound effects when dying at/past your normal mode best"
+			"default": true,
+			"name": "Disable in platformer levels",
+			"description": "Disables the mod while playing in a platformer level."
 		},
 		"levelcomplete": {
 			"type": "bool",
 			"default": true,
 			"name": "Play on level completion",
-			"description": "Plays Cold's celebration when you beat a level"
+			"description": "Plays Cold's celebration when you beat a level."
+		},
+		"customize": {
+			"type": "string",
+			"default": "All deaths",
+			"name": "Play sound effects on:",
+			"description": "Customize when death sound effects are played.",
+			"one-of": [ "All deaths", "Far attempts", "New bests", "Far atts & new bests" ]
+		},
+		"threshold": {
+			"type": "int",
+			"default": 67,
+			"min": 1,
+			"max": 99,
+			"name": "Far attempt threshold (%)",
+			"description": "Minimum percentage at which the mod considers an attempt to be \"far\" (used to choose what SFX to play). If \"Play sound effects\" is set to \"Far attempts\", sound effects will not play before this percentage."
+		},
+		"censored": {
+			"type": "string",
+			"default": "Censored",
+			"name": "Profane sound effects",
+			"description": "Censor or disable profane lines in the mod.",
+			"one-of": [ "Censored", "Disabled", "[13+] Uncensored" ]
 		},
 		"volume": {
 			"type": "int",
 			"default": 25,
 			"min": 0,
 			"max": 100,
-			"name": "Volume",
-			"description": "Set the mod's volume (0-100%)- sfx are VERY LOUD so low volume recommended"
+			"name": "Volume (%)",
+			"description": "Set the mod's volume- sfx are VERY LOUD so low volume recommended."
 		}
 	},
 	"resources": {
@@ -83,7 +105,13 @@
 			"resources/27.ogg",
 			"resources/28.ogg",
 			"resources/29.ogg",
-			"resources/30.ogg"
+			"resources/30.ogg",
+			"resources/4_c.ogg",
+			"resources/9_c.ogg",
+			"resources/10_c.ogg",
+			"resources/11_c.ogg",
+			"resources/24_c.ogg",
+			"resources/27_c.ogg"
 		]
 	},
 	"tags": [
