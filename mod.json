@@ -8,7 +8,7 @@
 	},
 	"id": "ramble21.stopdyingthere",
 	"name": "StopDyingThere",
-	"version": "v1.1.0",
+	"version": "v1.2.0",
 	"developer": "Ramble21",
 	"description": "Plays lines from Cold's iconic video whenever you die in GD",
 	"repository": "https://github.com/Ramble21/stopdyingthere",
@@ -43,14 +43,28 @@
 			"name": "Play on level completion",
 			"description": "Plays Cold's celebration when you beat a level."
 		},
-		"customize": {
+		"customize_deaths": {
 			"type": "string",
 			"default": "All deaths",
 			"name": "Play sound effects on:",
 			"description": "Customize when death sound effects are played.",
-			"one-of": [ "All deaths", "Far attempts", "New bests", "Far atts & new bests" ]
+			"one-of": [ "All deaths", "Decent attempts", "Far attempts" ]
 		},
-		"threshold": {
+		"alwaysbest": {
+			"type": "bool",
+			"default": false,
+			"name": "Always play SFX on new best",
+			"description": "Always play death sound effects on new bests, regardless of what option is chosen above."
+		},
+		"decent_threshold": {
+			"type": "int",
+			"default": 25,
+			"min": 1,
+			"max": 99,
+			"name": "Decent attempt threshold (%)",
+			"description": "Minimum percentage at which the mod considers an attempt to be \"decent\" (used to choose what SFX to play). If \"Play sound effects\" is set to \"Decent attempts\", sound effects will not play before this percentage."
+		},
+		"far_threshold": {
 			"type": "int",
 			"default": 67,
 			"min": 1,
