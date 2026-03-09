@@ -1,3 +1,6 @@
+# 1.2.1
+- v2.2081 support
+
 # 1.2.0
 - Added more customization options ("decent" versus "far" attempts)
 - Spike-related SFX now only play if the player actually died to a spike
