@@ -8,7 +8,7 @@
 	},
 	"id": "ramble21.stopdyingthere",
 	"name": "StopDyingThere",
-	"version": "v1.2.1",
+	"version": "v1.2.2",
 	"developer": "Ramble21",
 	"description": "Plays lines from Cold's iconic video whenever you die in GD",
 	"repository": "https://github.com/Ramble21/stopdyingthere",
@@ -24,6 +24,21 @@
 			"default": true,
 			"name": "Enable",
 			"description": "Enables the mod."
+		},
+		"volume": {
+			"type": "int",
+			"default": 25,
+			"min": 0,
+			"max": 100,
+			"name": "Volume (%)",
+			"description": "Set the mod's volume- sfx are VERY LOUD so low volume recommended."
+		},
+		"censored": {
+			"type": "string",
+			"default": "Censored",
+			"name": "Profane sound effects",
+			"description": "Censor or disable profane lines in the mod.",
+			"one-of": [ "Censored", "Disabled", "[13+] Uncensored" ]
 		},
 		"disableinpractice": {
 			"type": "bool",
@@ -71,22 +86,8 @@
 			"max": 99,
 			"name": "Far attempt threshold (%)",
 			"description": "Minimum percentage at which the mod considers an attempt to be \"far\" (used to choose what SFX to play). If \"Play sound effects\" is set to \"Far attempts\", sound effects will not play before this percentage."
-		},
-		"censored": {
-			"type": "string",
-			"default": "Censored",
-			"name": "Profane sound effects",
-			"description": "Censor or disable profane lines in the mod.",
-			"one-of": [ "Censored", "Disabled", "[13+] Uncensored" ]
-		},
-		"volume": {
-			"type": "int",
-			"default": 25,
-			"min": 0,
-			"max": 100,
-			"name": "Volume (%)",
-			"description": "Set the mod's volume- sfx are VERY LOUD so low volume recommended."
 		}
+
 	},
 	"resources": {
 		"files": [

@@ -140,6 +140,8 @@ class $modify(MyDeathHook, PlayerObject) {
                 if (disabledInPlat && playLayer->m_level->isPlatformer()) {
                     return;
                 }
+                bool isLocalPlayer = (this == playLayer->m_player1 || this == playLayer->m_player2);
+                if (!isLocalPlayer) return;
             }
 
             int currentBest = playLayer ? playLayer->m_level->m_normalPercent : 0;
