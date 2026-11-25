@@ -2,7 +2,6 @@
 #include <Geode/modify/PlayerObject.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/loader/Mod.hpp>
-#include <filesystem> 
 
 #include <cmath>
 #include <random>
@@ -31,24 +30,18 @@ void playSfx(int sfxId, float volume, bool censored) {
             filename = std::to_string(sfxId) + "_c.ogg";
         }
     }
-    auto path = Mod::get()->getResourcesDir() / filename;
 
+    asp::fs::Path path = Mod::get()->getResourcesDir() / filename;
     std::error_code ec;
-    if (!std::filesystem::exists(path, ec)) {
-        if (ec) {
-            log::error("Error checking file: {} - {}", string::pathToString(path), ec.message());
-        }
-        else {
-            log::error("File not found: {}", string::pathToString(path));
-        }
+    if (!path.exists()) {
+        log::error("File not found: {}", path.string());
         return;
     }
-
     FMOD::Sound* sound;
     FMOD::Channel* channel;
     auto engine = FMODAudioEngine::sharedEngine();
 
-    if (engine->m_system->createSound(string::pathToString(path).c_str(), FMOD_DEFAULT, nullptr, &sound) == FMOD_OK) {
+    if (engine->m_system->createSound(path.string().c_str(), FMOD_DEFAULT, nullptr, &sound) == FMOD_OK) {
         if (engine->m_system->playSound(sound, nullptr, false, &channel) == FMOD_OK) {
             channel->setVolume(volume);
         }

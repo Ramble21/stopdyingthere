@@ -1,3 +1,6 @@
+# 1.2.3
+- v2.2091 support
+
 # 1.2.2
 - Fixed a bug where sound effects play when any player dies in a Globed room
 
